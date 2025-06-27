@@ -1,3 +1,15 @@
+# Knowledge
+
+## Develop Branch
+
+This `develop` branch is a fork of the original repository with additional functionality needed for specific use cases:
+
+1. **Automatic Deprecated API Filtering**: Automatically filters out deprecated APIs from being exposed as MCP tools ([Issue #179](https://github.com/tadata-org/fastapi_mcp/issues/179))
+
+Note: These features are maintained separately from the main branch to address immediate needs while evaluating their potential integration into the main codebase.
+
+---
+
 <p align="center"><a href="https://github.com/tadata-org/fastapi_mcp"><img src="https://github.com/user-attachments/assets/7e44e98b-a0ba-4aff-a68a-4ffee3a6189c" alt="fastapi-to-mcp" height=100/></a></p>
 <h1 align="center">FastAPI-MCP</h1>
 <p align="center">Expose your FastAPI endpoints as Model Context Protocol (MCP) tools, with Auth!</p>
