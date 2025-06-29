@@ -6,11 +6,12 @@ import pytest
 from .types import Item
 
 
-def make_simple_fastapi_app() -> FastAPI:
+def make_simple_fastapi_app(lifespan=None) -> FastAPI:
     app = FastAPI(
         title="Test API",
         description="A test API app for unit testing",
         version="0.1.0",
+        lifespan=lifespan,
     )
 
     items = [
