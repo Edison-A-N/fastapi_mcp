@@ -1,13 +1,13 @@
 import contextlib
 import logging
 import threading
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 from anyio.abc import TaskStatus
 import anyio
 
 from functools import partial
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from mcp.server.lowlevel.server import Server as MCPServer
 from mcp.server.streamable_http import StreamableHTTPServerTransport
 
@@ -61,6 +61,7 @@ class StreamableHTTPSessionManagerLite:
         stateless: bool = True,
         json_response: bool = False,
         security_settings: Any = None,
+        dependencies: Optional[List[Depends]] = None,
         **kwargs,
     ):
         """
@@ -72,8 +73,12 @@ class StreamableHTTPSessionManagerLite:
             stateless: Only stateless mode is supported
             json_response: Whether to use JSON response mode
             security_settings: Optional security settings for the transport
+            dependencies: Optional[List[Depends]] - FastAPI dependencies, e.g. for auth.
             kwargs: Extra info for future use
         """
+        if dependencies is None:
+            dependencies = []
+
         if name in self._registry:
             raise ValueError(f"Endpoint with name '{name}' is already registered.")
         self._registry[name] = {
@@ -82,6 +87,7 @@ class StreamableHTTPSessionManagerLite:
             "stateless": stateless,
             "json_response": json_response,
             "security_settings": security_settings,
+            "dependencies": dependencies,
             **kwargs,
         }
         logger.info(f"Registered stateless endpoint: {name} at {mount_path}")
@@ -96,6 +102,7 @@ class StreamableHTTPSessionManagerLite:
             endpoint=partial(self._handle_stateless_request, name),
             methods=["POST"],
             include_in_schema=False,
+            dependencies=dependencies or [],
         )
 
     async def _start_stateless_server(self, name: str):
