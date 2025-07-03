@@ -5,6 +5,7 @@
 This `develop` branch is a fork of the original repository with additional functionality needed for specific use cases:
 
 1. **Automatic Deprecated API Filtering**: Automatically filters out deprecated APIs from being exposed as MCP tools ([Issue #179](https://github.com/tadata-org/fastapi_mcp/issues/179))
+2. **Upgrade MCP to >=1.10.1 and Use `mcp_server.request_context.request`**: Upgraded the MCP package to version >=1.10.1 to utilize the new `mcp_server.request_context.request` feature, allowing direct access to HTTP request information from the context. ([Issue #190](https://github.com/tadata-org/fastapi_mcp/issues/190))
 
 Note: These features are maintained separately from the main branch to address immediate needs while evaluating their potential integration into the main codebase.
 
