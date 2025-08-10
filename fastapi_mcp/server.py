@@ -46,6 +46,10 @@ class FastApiMCP:
             bool,
             Doc("Whether to include full json schema for responses in tool descriptions"),
         ] = False,
+        include_response_info: Annotated[
+            bool,
+            Doc("Whether to include response information in tool descriptions"),
+        ] = True,
         http_client: Annotated[
             Optional[httpx.AsyncClient],
             Doc(
@@ -107,6 +111,7 @@ class FastApiMCP:
         self._base_url = "http://apiserver"
         self._describe_all_responses = describe_all_responses
         self._describe_full_response_schema = describe_full_response_schema
+        self._include_response_info = include_response_info
         self._include_operations = include_operations
         self._exclude_operations = exclude_operations
         self._include_tags = include_tags
@@ -143,6 +148,7 @@ class FastApiMCP:
             describe_all_responses=self._describe_all_responses,
             describe_full_response_schema=self._describe_full_response_schema,
             ignore_deprecated=self._ignore_deprecated,
+            include_response_info=self._include_response_info,
         )
 
         # Filter tools based on operation IDs and tags
