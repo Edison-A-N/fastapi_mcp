@@ -79,6 +79,12 @@ class FastApiMCP:
             Optional[AuthConfig],
             Doc("Configuration for MCP authentication"),
         ] = None,
+        prefer_structured_content: Annotated[
+            bool,
+            Doc(
+                "Whether to prefer structured content over text content in responses. Defaults to False for backwards compatibility."
+            ),
+        ] = False,
         headers: Annotated[
             List[str],
             Doc(
@@ -117,6 +123,7 @@ class FastApiMCP:
         self._include_tags = include_tags
         self._exclude_tags = exclude_tags
         self._auth_config = auth_config
+        self._prefer_structured_content = prefer_structured_content
 
         if self._auth_config:
             self._auth_config = self._auth_config.model_validate(self._auth_config)
@@ -163,7 +170,7 @@ class FastApiMCP:
         @mcp_server.call_tool()
         async def handle_call_tool(
             name: str, arguments: Dict[str, Any]
-        ) -> List[Union[types.TextContent, types.ImageContent, types.EmbeddedResource]]:
+        ) -> Union[List[Union[types.TextContent, types.ImageContent, types.EmbeddedResource]], Dict[str, Any]]:
             # Extract HTTP request info from MCP context
             http_request_info = None
             try:
@@ -514,7 +521,7 @@ class FastApiMCP:
             Optional[HTTPRequestInfo],
             Doc("HTTP request info to forward to the actual API call"),
         ] = None,
-    ) -> List[Union[types.TextContent, types.ImageContent, types.EmbeddedResource]]:
+    ) -> Union[List[Union[types.TextContent, types.ImageContent, types.EmbeddedResource]], Dict[str, Any]]:
         """
         Execute an MCP tool by making an HTTP request to the corresponding API endpoint.
 
@@ -567,6 +574,7 @@ class FastApiMCP:
             response = await self._request(client, method, path, query, headers, body)
 
             # TODO: Better typing for the AsyncClientProtocol. It should return a ResponseProtocol that has a json() method that returns a dict/list/etc.
+            result = None
             try:
                 result = response.json()
                 result_text = json.dumps(result, indent=2, ensure_ascii=False)
@@ -582,6 +590,9 @@ class FastApiMCP:
                 raise Exception(
                     f"Error calling {tool_name}. Status code: {response.status_code}. Response: {response.text}"
                 )
+
+            if result is not None and self._prefer_structured_content:
+                return result
 
             try:
                 return [types.TextContent(type="text", text=result_text)]
