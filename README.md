@@ -1,3 +1,16 @@
+## 🚀 Enhanced Features (feature-test branch)
+
+**Built by [@Edison](https://github.com/Edison-A-N)**
+
+- **Stateless Mode**: Force stateless transport by ignoring mcp-session-id headers
+- **Skip Deprecated APIs**: Automatically exclude deprecated operations (enabled by default)
+- **Structured Content Response**: Return structured JSON responses instead of text content
+- **Response Info Control**: Fine-grained control over response information in tool descriptions
+
+These features are available in the `feature-test` branch.
+
+---
+
 <p align="center"><a href="https://github.com/tadata-org/fastapi_mcp"><img src="https://github.com/user-attachments/assets/7e44e98b-a0ba-4aff-a68a-4ffee3a6189c" alt="fastapi-to-mcp" height=100/></a></p>
 
 <div align="center">
