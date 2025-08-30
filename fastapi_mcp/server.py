@@ -106,6 +106,12 @@ class FastApiMCP:
         if include_tags is not None and exclude_tags is not None:
             raise ValueError("Cannot specify both include_tags and exclude_tags")
 
+        # When a tool specifies an output schema in the MCP framework,
+        # it must return structured content. Therefore, when include_output_schema=True,
+        # prefer_structured_content must also be True.
+        if include_output_schema and not prefer_structured_content:
+            raise ValueError("When include_output_schema=True, prefer_structured_content must also be True")
+
         self.operation_map: Dict[str, Dict[str, Any]]
         self.tools: List[types.Tool]
         self.server: Server

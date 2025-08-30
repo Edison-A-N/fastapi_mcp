@@ -662,3 +662,72 @@ def test_include_response_info_true_explicit(simple_fastapi_app: FastAPI):
         else:
             assert "### Responses:" in tool.description, "Response section should be present"
             assert "**204**" in tool.description, "204 status code should be present"
+
+
+def test_include_output_schema_validation_error(simple_fastapi_app: FastAPI):
+    """Test that include_output_schema=True without prefer_structured_content=True raises an error."""
+    with pytest.raises(
+        ValueError, match="When include_output_schema=True, prefer_structured_content must also be True"
+    ):
+        FastApiMCP(simple_fastapi_app, include_output_schema=True, prefer_structured_content=False)
+
+
+def test_include_output_schema_with_prefer_structured_content_true(simple_fastapi_app: FastAPI):
+    """Test that include_output_schema=True with prefer_structured_content=True works correctly."""
+    mcp_server = FastApiMCP(simple_fastapi_app, include_output_schema=True, prefer_structured_content=True)
+
+    # Check that the configuration is set correctly
+    assert mcp_server._include_output_schema is True
+    assert mcp_server._prefer_structured_content is True
+
+    # Check that tools have outputSchema when they have response models
+    for tool in mcp_server.tools:
+        if tool.name in ["list_items", "get_item", "create_item", "update_item"]:
+            # These endpoints have response models, so they should have outputSchema
+            assert tool.outputSchema is not None, f"Tool {tool.name} should have outputSchema"
+        elif tool.name in ["delete_item", "raise_error"]:
+            # These endpoints don't have response models, so they should not have outputSchema
+            assert tool.outputSchema is None, f"Tool {tool.name} should not have outputSchema"
+
+
+def test_include_output_schema_false_with_prefer_structured_content_true(simple_fastapi_app: FastAPI):
+    """Test that include_output_schema=False with prefer_structured_content=True works correctly."""
+    mcp_server = FastApiMCP(simple_fastapi_app, include_output_schema=False, prefer_structured_content=True)
+
+    # Check that the configuration is set correctly
+    assert mcp_server._include_output_schema is False
+    assert mcp_server._prefer_structured_content is True
+
+    # Check that no tools have outputSchema
+    for tool in mcp_server.tools:
+        assert tool.outputSchema is None, (
+            f"Tool {tool.name} should not have outputSchema when include_output_schema=False"
+        )
+
+
+def test_include_output_schema_false_with_prefer_structured_content_false(simple_fastapi_app: FastAPI):
+    """Test that include_output_schema=False with prefer_structured_content=False works correctly."""
+    mcp_server = FastApiMCP(simple_fastapi_app, include_output_schema=False, prefer_structured_content=False)
+
+    # Check that the configuration is set correctly
+    assert mcp_server._include_output_schema is False
+    assert mcp_server._prefer_structured_content is False
+
+    # Check that no tools have outputSchema
+    for tool in mcp_server.tools:
+        assert tool.outputSchema is None, (
+            f"Tool {tool.name} should not have outputSchema when include_output_schema=False"
+        )
+
+
+def test_include_output_schema_default_behavior(simple_fastapi_app: FastAPI):
+    """Test the default behavior of include_output_schema parameter."""
+    mcp_server = FastApiMCP(simple_fastapi_app)
+
+    # Check default values
+    assert mcp_server._include_output_schema is False
+    assert mcp_server._prefer_structured_content is False
+
+    # Check that no tools have outputSchema by default
+    for tool in mcp_server.tools:
+        assert tool.outputSchema is None, f"Tool {tool.name} should not have outputSchema by default"
