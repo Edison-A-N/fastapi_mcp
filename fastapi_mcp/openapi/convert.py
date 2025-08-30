@@ -18,6 +18,7 @@ def convert_openapi_to_mcp_tools(
     openapi_schema: Dict[str, Any],
     describe_all_responses: bool = False,
     describe_full_response_schema: bool = False,
+    include_output_schema: bool = False,
 ) -> Tuple[List[types.Tool], Dict[str, Dict[str, Any]]]:
     """
     Convert OpenAPI operations to MCP tools.
@@ -26,6 +27,7 @@ def convert_openapi_to_mcp_tools(
         openapi_schema: The OpenAPI schema
         describe_all_responses: Whether to include all possible response schemas in tool descriptions
         describe_full_response_schema: Whether to include full response schema in tool descriptions
+        include_output_schema: Whether to include outputSchema in MCP tools, defaults to False for backwards compatibility
 
     Returns:
         A tuple containing:
@@ -259,8 +261,38 @@ def convert_openapi_to_mcp_tools(
             if required_props:
                 input_schema["required"] = required_props
 
+            # Extract output schema from responses
+            output_schema = None
+            if include_output_schema:
+                responses = operation.get("responses", {})
+                if responses:
+                    # Find the success response (2xx status codes)
+                    success_codes = range(200, 300)
+                    success_response = None
+                    for status_code in success_codes:
+                        if str(status_code) in responses:
+                            success_response = responses[str(status_code)]
+                            break
+
+                    if success_response and "content" in success_response:
+                        # Get the first available content type
+                        content_type = next(iter(success_response["content"]), None)
+                        if content_type and "schema" in success_response["content"][content_type]:
+                            schema = success_response["content"][content_type]["schema"]
+                            # Clean the schema for output
+                            cleaned_schema = clean_schema_for_display(schema)
+                            # Only set output_schema if the cleaned schema is not empty
+                            if cleaned_schema and cleaned_schema != {}:
+                                # Set the cleaned schema as output schema
+                                output_schema = cleaned_schema
+
             # Create the MCP tool definition
-            tool = types.Tool(name=operation_id, description=tool_description, inputSchema=input_schema)
+            tool = types.Tool(
+                name=operation_id,
+                description=tool_description,
+                inputSchema=input_schema,
+                outputSchema=output_schema,
+            )
 
             tools.append(tool)
 

@@ -84,6 +84,10 @@ class FastApiMCP:
                 """
             ),
         ] = ["authorization"],
+        include_output_schema: Annotated[
+            bool,
+            Doc("Whether to include outputSchema in MCP tools. Defaults to False for backwards compatibility."),
+        ] = False,
     ):
         # Validate operation and tag filtering options
         if include_operations is not None and exclude_operations is not None:
@@ -112,6 +116,7 @@ class FastApiMCP:
         if self._auth_config:
             self._auth_config = self._auth_config.model_validate(self._auth_config)
 
+        self._include_output_schema = include_output_schema
         self._http_client = http_client or httpx.AsyncClient(
             transport=httpx.ASGITransport(app=self.fastapi, raise_app_exceptions=False),
             base_url=self._base_url,
@@ -136,6 +141,7 @@ class FastApiMCP:
             openapi_schema,
             describe_all_responses=self._describe_all_responses,
             describe_full_response_schema=self._describe_full_response_schema,
+            include_output_schema=self._include_output_schema,
         )
 
         # Filter tools based on operation IDs and tags
