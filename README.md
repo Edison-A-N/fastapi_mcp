@@ -2,10 +2,10 @@
 
 **Built by [@Edison](https://github.com/Edison-A-N)**
 
-- **Stateless Mode**: Force stateless transport by ignoring mcp-session-id headers
-- **Skip Deprecated APIs**: Automatically exclude deprecated operations (enabled by default)
-- **Structured Content Response**: Return structured JSON responses instead of text content
-- **Response Info Control**: Fine-grained control over response information in tool descriptions
+- **Stateless Mode**: Force stateless transport by ignoring mcp-session-id headers ([PR #213](https://github.com/tadata-org/fastapi_mcp/pull/213) 🔄)
+- **Skip Deprecated APIs**: Automatically exclude deprecated operations (enabled by default) ([PR #180](https://github.com/tadata-org/fastapi_mcp/pull/180) 🔄)
+- **Structured Content Response**: Return structured JSON responses instead of text content ([PR #230](https://github.com/tadata-org/fastapi_mcp/pull/230) 🔄)
+- **Response Info Control**: Fine-grained control over response information in tool descriptions ([PR #215](https://github.com/tadata-org/fastapi_mcp/pull/215) 🔄)
 
 These features are available in the `feature-test` branch.
 
