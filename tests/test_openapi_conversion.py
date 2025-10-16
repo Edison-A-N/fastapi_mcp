@@ -651,3 +651,104 @@ def test_ignore_deprecated_with_no_deprecated_operations(simple_fastapi_app: Fas
     for tool in tools_ignore_false:
         assert isinstance(tool, types.Tool)
         assert tool.name in expected_operations
+
+
+def test_output_schema_extraction(simple_fastapi_app: FastAPI):
+    """Test that outputSchema is correctly extracted from response schemas."""
+    openapi_schema = get_openapi(
+        title=simple_fastapi_app.title,
+        version=simple_fastapi_app.version,
+        openapi_version=simple_fastapi_app.openapi_version,
+        description=simple_fastapi_app.description,
+        routes=simple_fastapi_app.routes,
+    )
+
+    tools, operation_map = convert_openapi_to_mcp_tools(openapi_schema, include_output_schema=True)
+
+    # Check that all tools have outputSchema field (may be None)
+    for tool in tools:
+        assert hasattr(tool, "outputSchema")
+
+        # Tools with response models should have outputSchema
+        if tool.name in ["list_items", "get_item", "create_item", "update_item"]:
+            assert tool.outputSchema is not None
+            assert isinstance(tool.outputSchema, dict)
+
+            # Verify the schema structure
+            if tool.name == "list_items":
+                # Should be an array schema
+                assert tool.outputSchema.get("type") == "array"
+                assert "items" in tool.outputSchema
+            elif tool.name in ["get_item", "create_item", "update_item"]:
+                # Should be an object schema
+                assert tool.outputSchema.get("type") == "object"
+                assert "properties" in tool.outputSchema
+
+        # Tools without response models should have None outputSchema
+        elif tool.name in ["delete_item", "raise_error"]:
+            assert tool.outputSchema is None
+
+
+def test_output_schema_with_complex_responses(complex_fastapi_app: FastAPI):
+    """Test outputSchema extraction with complex response schemas."""
+    openapi_schema = get_openapi(
+        title=complex_fastapi_app.title,
+        version=complex_fastapi_app.version,
+        openapi_version=complex_fastapi_app.openapi_version,
+        description=complex_fastapi_app.description,
+        routes=complex_fastapi_app.routes,
+    )
+
+    tools, operation_map = convert_openapi_to_mcp_tools(openapi_schema, include_output_schema=True)
+
+    # Check that complex app tools have proper outputSchema
+    for tool in tools:
+        assert hasattr(tool, "outputSchema")
+
+        if tool.name in ["list_products", "get_product", "create_order", "get_customer"]:
+            assert tool.outputSchema is not None
+            assert isinstance(tool.outputSchema, dict)
+
+            # Verify schema structure based on expected response types
+            if tool.name == "list_products":
+                # PaginatedResponse is an object with an items array
+                assert tool.outputSchema.get("type") == "object"
+                assert "properties" in tool.outputSchema
+                # Check that it has an items property that is an array
+                items_prop = tool.outputSchema["properties"].get("items")
+                assert items_prop is not None
+                assert items_prop.get("type") == "array"
+            elif tool.name in ["get_product", "create_order"]:
+                # These should have properties after cleaning
+                assert "properties" in tool.outputSchema
+            elif tool.name == "get_customer":
+                # get_customer might have minimal schema after cleaning
+                assert "title" in tool.outputSchema
+
+
+def test_include_output_schema_parameter(simple_fastapi_app: FastAPI):
+    """Test that include_output_schema parameter controls outputSchema inclusion."""
+    openapi_schema = get_openapi(
+        title=simple_fastapi_app.title,
+        version=simple_fastapi_app.version,
+        openapi_version=simple_fastapi_app.openapi_version,
+        description=simple_fastapi_app.description,
+        routes=simple_fastapi_app.routes,
+    )
+
+    # Test with include_output_schema=True (default)
+    tools_with_schema, _ = convert_openapi_to_mcp_tools(openapi_schema, include_output_schema=True)
+
+    # Test with include_output_schema=False
+    tools_without_schema, _ = convert_openapi_to_mcp_tools(openapi_schema, include_output_schema=False)
+
+    # Tools with response models should have outputSchema when include_output_schema=True
+    for tool in tools_with_schema:
+        if tool.name in ["list_items", "get_item", "create_item", "update_item"]:
+            assert tool.outputSchema is not None
+        elif tool.name in ["delete_item", "raise_error"]:
+            assert tool.outputSchema is None
+
+    # All tools should have None outputSchema when include_output_schema=False
+    for tool in tools_without_schema:
+        assert tool.outputSchema is None

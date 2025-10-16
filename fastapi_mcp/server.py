@@ -98,6 +98,10 @@ class FastApiMCP:
             bool,
             Doc("Whether to ignore deprecated operations when converting OpenAPI to MCP tools. Defaults to True."),
         ] = True,
+        include_output_schema: Annotated[
+            bool,
+            Doc("Whether to include outputSchema in MCP tools. Defaults to False for backwards compatibility."),
+        ] = False,
     ):
         # Validate operation and tag filtering options
         if include_operations is not None and exclude_operations is not None:
@@ -129,7 +133,7 @@ class FastApiMCP:
             self._auth_config = self._auth_config.model_validate(self._auth_config)
 
         self._ignore_deprecated = ignore_deprecated
-
+        self._include_output_schema = include_output_schema
         self._http_client = http_client or httpx.AsyncClient(
             transport=httpx.ASGITransport(app=self.fastapi, raise_app_exceptions=False),
             base_url=self._base_url,
@@ -156,6 +160,7 @@ class FastApiMCP:
             describe_full_response_schema=self._describe_full_response_schema,
             ignore_deprecated=self._ignore_deprecated,
             include_response_info=self._include_response_info,
+            include_output_schema=self._include_output_schema,
         )
 
         # Filter tools based on operation IDs and tags
