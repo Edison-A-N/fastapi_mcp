@@ -6,6 +6,7 @@
 - **Skip Deprecated APIs**: Automatically exclude deprecated operations (enabled by default) ([PR #180](https://github.com/tadata-org/fastapi_mcp/pull/180) 🔄)
 - **Structured Content Response**: Return structured JSON responses instead of text content ([PR #230](https://github.com/tadata-org/fastapi_mcp/pull/230) 🔄)
 - **Response Info Control**: Fine-grained control over response information in tool descriptions ([PR #215](https://github.com/tadata-org/fastapi_mcp/pull/215) 🔄)
+- **Output Schema Support**: Include outputSchema in MCP tools for better LLM understanding ([feature/output-schema-support](https://github.com/Edison-A-N/fastapi_mcp/tree/feature/output-schema-support) ⏳)
 
 These features are available in the `feature-test` branch.
 
