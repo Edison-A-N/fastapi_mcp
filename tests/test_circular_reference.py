@@ -63,7 +63,9 @@ def create_circular_reference_app() -> FastAPI:
     @app.get("/comments/{comment_id}", operation_id="get_comment")
     async def get_comment(comment_id: int) -> Comment:
         """Get a comment by ID."""
-        return Comment(id=comment_id, content="Test Comment", post=Post(id=1, title="Post"))
+        return Comment(
+            id=comment_id, content="Test Comment", post=Post(id=1, title="Post", author=User(id=1, name="Author"))
+        )
 
     @app.get("/tree/{node_id}", operation_id="get_tree_node")
     async def get_tree_node(node_id: int) -> TreeNode:
