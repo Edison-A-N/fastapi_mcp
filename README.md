@@ -1,3 +1,19 @@
+## ⚠️ Project Status Notice
+
+**This project is currently archived. Future deletion is possible.**
+
+After careful consideration and community feedback, I've determined that converting RESTful APIs to MCP tools is not the recommended approach for production use. This project was primarily experimental in nature, and I've found that the current maintenance level is insufficient for continued active development.
+
+For those interested in experimenting with MCP integrations, I recommend using [FastMCP](https://gofastmcp.com/integrations/fastapi) instead, which provides a more robust foundation for such experiments.
+
+**Further reading on this topic:**
+- [Stop Converting Your REST APIs to MCP](https://www.jlowin.dev/blog/stop-converting-rest-apis-to-mcp) by Jason Lowin
+- [Stop Converting REST API to MCP](https://edison-a-n.github.io/2025/09/29/stop-converting-rest-api-to-mcp/) by Edison
+- [FastMCP FastAPI Integration Guide](https://gofastmcp.com/integrations/fastapi)
+- [FastMCP OpenAPI Integration Guide](https://gofastmcp.com/integrations/openapi)
+
+---
+
 ## 🚀 Enhanced Features (feature-test branch)
 
 **Built by [@Edison](https://github.com/Edison-A-N)**
